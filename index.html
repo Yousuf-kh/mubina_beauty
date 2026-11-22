@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rang va Go'zallik Studiyasi — Shaxsiy Rang Tahlili</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        roseGold: {
+                            50: '#fdf8f6',
+                            100: '#f9ece7',
+                            200: '#f3d8cf',
+                            300: '#e9baa9',
+                            400: '#dc937a',
+                            500: '#ce7153',
+                            600: '#ba583b',
+                            700: '#9b462f',
+                            800: '#803c2a',
+                            900: '#693426',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Maxsus skrollbar va silliq animatsiyalar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fdf8f6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e9baa9;
+            border-radius: 9999px;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #f3d8cf;
+            height: 0.4rem;
+            border-radius: 9999px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -5px;
+            background-color: #ba583b;
+            height: 1.15rem;
+            width: 1.15rem;
+            border-radius: 9999px;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 6px rgba(186, 88, 59, 0.4);
+            transition: transform 0.15s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+        .eyedropper-cursor {
+            cursor: crosshair !important;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-roseGold-50 via-stone-50 to-amber-50/40 text-stone-800 min-h-screen flex flex-col">
+
+    <!-- Bildirishnoma (Toast) oynasi -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-stone-900 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center gap-3 max-w-sm">
+        <i data-lucide="sparkles" class="w-5 h-5 text-amber-300 shrink-0"></i>
+        <p id="toastMessage" class="text-sm font-medium"></p>
+    </div>
+
+    <!-- Yuqori Navigatsiya Paneli -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-roseGold-200/60 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-roseGold-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-roseGold-500/20">
+                    <i data-lucide="palette" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-serif text-lg sm:text-xl font-bold text-stone-900 leading-tight">Rang va Go‘zallik Studiyasi</h1>
+                    <p class="text-xs text-stone-500 hidden sm:block">Shaxsiy rang tahlili va ko‘rinishni jozibador qilish platformasi</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button onclick="openCameraModal()" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-roseGold-100 hover:bg-roseGold-200 text-roseGold-800 text-xs sm:text-sm font-medium transition">
+                    <i data-lucide="camera" class="w-4 h-4"></i>
+                    <span class="hidden md:inline">Kamera orqali</span>
+                </button>
+                <label class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-medium cursor-pointer transition shadow-sm">
+                    <i data-lucide="upload" class="w-4 h-4"></i>
+                    <span>Rasm yuklash</span>
+                    <input type="file" id="imageUpload" accept="image/*" class="hidden">
+                </label>
+            </div>
+        </div>
+    </header>
+
+    <!-- Asosiy Kontent -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- Namuna rasmlar tezkor tanlash paneli -->
+        <div class="mb-6 bg-white/90 rounded-2xl p-4 border border-roseGold-100 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-2.5">
+                <span class="p-2 rounded-xl bg-amber-100 text-amber-700">
+                    <i data-lucide="users" class="w-4 h-4"></i>
+                </span>
+                <div>
+                    <h2 class="text-sm font-semibold text-stone-800">Tayyor namunalarda sinab ko‘ring</h2>
+                    <p class="text-xs text-stone-500">O‘z rasmingizni yuklang yoki quyidagi modellardan birini tanlang</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <button onclick="loadSamplePortrait(0)" class="sample-btn px-3 py-1.5 rounded-xl border border-roseGold-200 bg-roseGold-50/70 hover:bg-roseGold-100 text-xs font-medium text-stone-700 flex items-center gap-2 transition">
+                    <span class="w-3 h-3 rounded-full bg-[#f3c6a5] border border-stone-300"></span>
+                    1-namuna (Issiq / Bahor)
+                </button>
+                <button onclick="loadSamplePortrait(1)" class="sample-btn px-3 py-1.5 rounded-xl border border-roseGold-200 bg-roseGold-50/70 hover:bg-roseGold-100 text-xs font-medium text-stone-700 flex items-center gap-2 transition">
+                    <span class="w-3 h-3 rounded-full bg-[#e8b8c4] border border-stone-300"></span>
+                    2-namuna (Sovuq / Yoz)
+                </button>
+                <button onclick="loadSamplePortrait(2)" class="sample-btn px-3 py-1.5 rounded-xl border border-roseGold-200 bg-roseGold-50/70 hover:bg-roseGold-100 text-xs font-medium text-stone-700 flex items-center gap-2 transition">
+                    <span class="w-3 h-3 rounded-full bg-[#c98b5b] border border-stone-300"></span>
+                    3-namuna (Chuqur / Kuz)
+                </button>
+                <button onclick="loadSamplePortrait(3)" class="sample-btn px-3 py-1.5 rounded-xl border border-roseGold-200 bg-roseGold-50/70 hover:bg-roseGold-100 text-xs font-medium text-stone-700 flex items-center gap-2 transition">
+                    <span class="w-3 h-3 rounded-full bg-[#f5d5d8] border border-stone-300"></span>
+                    4-namuna (Yorqin / Qish)
+                </button>
+            </div>
+        </div>
+
+        <!-- 3 ustunli asosiy studiya panjarasi -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <!-- CHAP USTUN: Rang tahlili va Virtual Mato (Draping) -->
+            <div class="lg:col-span-4 space-y-5">
+                
+                <!-- 1. Teri rangini aniqlash (Pipetka va qo'lda tanlash) -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-roseGold-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-semibold text-stone-900 flex items-center gap-2">
+                            <i data-lucide="pipette" class="w-4 h-4 text-roseGold-600"></i>
+                            1. Teri ohangini aniqlash
+                        </h3>
+                        <span id="detectedSeasonBadge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                            Bahor (Issiq)
+                        </span>
+                    </div>
+                    <p class="text-xs text-stone-500 mb-4 leading-relaxed">
+                        Pipetka tugmasini bosib, rasmdagi yuz teringiz ustiga bosing — dastur sizning rang turizm va ohangni avtomatik aniqlaydi.
+                    </p>
+
+                    <div class="flex items-center gap-3 mb-4">
+                        <button id="eyedropperBtn" onclick="toggleEyedropper()" class="flex-1 py-2.5 px-4 rounded-xl bg-roseGold-600 hover:bg-roseGold-700 text-white text-sm font-medium flex items-center justify-center gap-2 transition shadow-sm">
+                            <i data-lucide="crosshair" class="w-4 h-4"></i>
+                            <span id="eyedropperText">Rasmdan teri rangini olish</span>
+                        </button>
+                        <div class="flex flex-col items-center">
+                            <div id="sampledSkinPreview" class="w-10 h-10 rounded-xl border-2 border-white shadow-md" style="background-color: #f3c6a5;" title="Tanlangan teri rangi"></div>
+                        </div>
+                    </div>
+
+                    <!-- Mavsumiy rang turlarini qo'lda tanlash -->
+                    <label class="block text-xs font-medium text-stone-600 mb-2">Yoki o‘zingizga mos rang mavsumini tanlang:</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="setSeason('spring')" id="btn-season-spring" class="season-selector p-2.5 rounded-xl border-2 border-roseGold-500 bg-roseGold-50 text-left transition">
+                            <div class="font-semibold text-xs text-stone-900">🌸 Bahor (Spring)</div>
+                            <div class="text-[11px] text-stone-500">Issiq, yorqin, oltinsimon</div>
+                        </button>
+                        <button onclick="setSeason('summer')" id="btn-season-summer" class="season-selector p-2.5 rounded-xl border border-stone-200 hover:border-roseGold-300 text-left transition">
+                            <div class="font-semibold text-xs text-stone-900">🌊 Yoz (Summer)</div>
+                            <div class="text-[11px] text-stone-500">Sovuq, yumshoq, mayin</div>
+                        </button>
+                        <button onclick="setSeason('autumn')" id="btn-season-autumn" class="season-selector p-2.5 rounded-xl border border-stone-200 hover:border-roseGold-300 text-left transition">
+                            <div class="font-semibold text-xs text-stone-900">🍂 Kuz (Autumn)</div>
+                            <div class="text-[11px] text-stone-500">Issiq, chuqur, tabiiy</div>
+                        </button>
+                        <button onclick="setSeason('winter')" id="btn-season-winter" class="season-selector p-2.5 rounded-xl border border-stone-200 hover:border-roseGold-300 text-left transition">
+                            <div class="font-semibold text-xs text-stone-900">❄️ Qish (Winter)</div>
+                            <div class="text-[11px] text-stone-500">Sovuq, tiniq, kontrastli</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. Virtual Mato (Draping) Sinovi -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-roseGold-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-semibold text-stone-900 flex items-center gap-2">
+                            <i data-lucide="shirt" class="w-4 h-4 text-roseGold-600"></i>
+                            2. Virtual Kiyim / Ro‘mol Rangi
+                        </h3>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="drapeToggle" checked onchange="renderCanvas()" class="sr-only peer">
+                            <div class="w-9 h-5 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-roseGold-600 relative"></div>
+                        </label>
+                    </div>
+                    <p class="text-xs text-stone-500 mb-3">
+                        Ranglarni bosib ko‘ring: qaysi rang yuzingizni yorqin, tiniq va sog‘lom ko‘rsatishini kuzating.
+                    </p>
+
+                    <!-- Tanlangan rang nomi -->
+                    <div class="mb-3 px-3 py-2 rounded-xl bg-stone-50 border border-stone-200/80 flex items-center justify-between">
+                        <span class="text-xs text-stone-500">Hozirgi mato rangi:</span>
+                        <span id="currentDrapeName" class="text-xs font-semibold text-stone-800">Shaftoli guli (#FF9E80)</span>
+                    </div>
+
+                    <!-- Tavsiya etilgan ranglar palitrasi -->
+                    <div class="mb-3">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 block mb-2">✨ Yuzni ochuvchi (Yarashadigan) ranglar:</span>
+                        <div id="recommendedSwatches" class="grid grid-cols-6 gap-2">
+                            <!-- JS orqali to'ldiriladi -->
+                        </div>
+                    </div>
+
+                    <!-- Solishtirish uchun mos kelmaydigan ranglar -->
+                    <div>
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-rose-600 block mb-2">⚠️ Yuzni so‘lg‘in ko‘rsatuvchi ranglar (Solishtirish):</span>
+                        <div id="avoidSwatches" class="grid grid-cols-6 gap-2">
+                            <!-- JS orqali to'ldiriladi -->
+                        </div>
+                    </div>
+
+                    <!-- Maxsus rang tanlagich -->
+                    <div class="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
+                        <span class="text-xs text-stone-600">Istalgan rangni sinash:</span>
+                        <input type="color" id="customDrapeColor" value="#ff9e80" onchange="selectDrapeColor(this.value, 'Maxsus tanlangan rang', true)" class="w-8 h-8 rounded-lg cursor-pointer border-0 bg-transparent">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- O'RTA USTUN: Interaktiv Canvas Studiyasi -->
+            <div class="lg:col-span-5 flex flex-col items-center">
+                <div class="w-full bg-white rounded-3xl p-4 sm:p-5 shadow-md border border-roseGold-100">
+                    
+                    <!-- Yuqori boshqaruv tugmalari (Oldin/Keyin va Yuklab olish) -->
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <button id="compareBtn" onmousedown="startCompare()" onmouseup="endCompare()" onmouseleave="endCompare()" ontouchstart="startCompare()" ontouchend="endCompare()" class="px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 active:bg-stone-300 text-stone-700 text-xs font-semibold flex items-center gap-1.5 select-none transition">
+                            <i data-lucide="split-square-horizontal" class="w-4 h-4"></i>
+                            <span>Oldin / Keyin (Bosib turing)</span>
+                        </button>
+
+                        <button onclick="downloadEnhancedImage()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-roseGold-600 to-amber-600 hover:from-roseGold-700 hover:to-amber-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Rasmni saqlash</span>
+                        </button>
+                    </div>
+
+                    <!-- Pipetka faol holati xabarnomasi -->
+                    <div id="eyedropperBanner" class="hidden mb-3 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between">
+                        <span class="flex items-center gap-1.5 font-medium">
+                            <i data-lucide="info" class="w-4 h-4 text-amber-600"></i>
+                            Rasm ustidagi yuz terisi qismiga bosing!
+                        </span>
+                        <button onclick="toggleEyedropper()" class="text-amber-700 underline font-semibold">Bekor qilish</button>
+                    </div>
+
+                    <!-- Canvas Konteyneri -->
+                    <div id="canvasContainer" class="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-stone-100 border border-stone-200/80 flex items-center justify-center shadow-inner">
+                        <canvas id="studioCanvas" class="w-full h-full object-contain"></canvas>
+                        
+                        <!-- "OLDIN" yorlig'i -->
+                        <div id="beforeBadge" class="hidden absolute top-3 left-3 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full tracking-wide">
+                            ASL HOLATI (OLDIN)
+                        </div>
+                        <!-- "KEYIN" yorlig'i -->
+                        <div id="afterBadge" class="absolute top-3 left-3 bg-roseGold-600/90 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full tracking-wide shadow-sm">
+                            YAXSHILANGAN KO‘RINISH
+                        </div>
+                    </div>
+
+                    <!-- Pastki qisqa ma'lumot -->
+                    <div class="mt-3 flex items-center justify-between text-xs text-stone-500">
+                        <span id="drapeStatusIndicator" class="flex items-center gap-1.5 text-emerald-700 font-medium">
+                            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                            Bu rang yuzingizga nur va joziba bermoqda
+                        </span>
+                        <button onclick="resetFilters()" class="text-stone-500 hover:text-roseGold-600 underline">
+                            Asliga qaytarish
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- O'NG USTUN: Yuzni chiroyli va yorqin qilish sozlamalari -->
+            <div class="lg:col-span-3 space-y-5">
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-roseGold-100">
+                    <h3 class="font-semibold text-stone-900 flex items-center gap-2 mb-1">
+                        <i data-lucide="wand-2" class="w-4 h-4 text-roseGold-600"></i>
+                        3. Tabiiy Nur va Chiroy
+                    </h3>
+                    <p class="text-xs text-stone-500 mb-4">
+                        Yuz rangini yanada tiniq, sog‘lom va jozibador ko‘rsatish uchun sozlamalar.
+                    </p>
+
+                    <!-- Tayyor go'zallik rejimlari (Presets) -->
+                    <div class="mb-5">
+                        <label class="block text-xs font-medium text-stone-600 mb-2">Tayyor go‘zallik effektlari:</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="applyBeautyPreset('natural')" class="preset-btn py-2 px-2.5 rounded-xl bg-roseGold-50 hover:bg-roseGold-100 border border-roseGold-200 text-xs font-medium text-roseGold-900 transition">
+                                ✨ Tabiiy nur
+                            </button>
+                            <button onclick="applyBeautyPreset('golden')" class="preset-btn py-2 px-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-xs font-medium text-amber-900 transition">
+                                ☀️ Issiq oltin
+                            </button>
+                            <button onclick="applyBeautyPreset('fresh')" class="preset-btn py-2 px-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-xs font-medium text-sky-900 transition">
+                                💧 Tiniq kunduz
+                            </button>
+                            <button onclick="applyBeautyPreset('glamour')" class="preset-btn py-2 px-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-xs font-medium text-purple-900 transition">
+                                💎 Bayramona
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Slayderlar -->
+                    <div class="space-y-4">
+                        <!-- Yuz yorqinligi -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="font-medium text-stone-700">Yuz yorqinligi (Nur)</span>
+                                <span id="val-brightness" class="text-roseGold-600 font-semibold">+8%</span>
+                            </div>
+                            <input type="range" id="slider-brightness" min="80" max="135" value="108" oninput="updateFilterValues()" class="w-full">
+                        </div>
+
+                        <!-- Teri mayinligi -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="font-medium text-stone-700">Teri mayinligi (Soft Glow)</span>
+                                <span id="val-glow" class="text-roseGold-600 font-semibold">25%</span>
+                            </div>
+                            <input type="range" id="slider-glow" min="0" max="80" value="25" oninput="updateFilterValues()" class="w-full">
+                        </div>
+
+                        <!-- Harorat / Issiqlik -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="font-medium text-stone-700">Rang harorati (Issiq/Sovuq)</span>
+                                <span id="val-warmth" class="text-roseGold-600 font-semibold">+10</span>
+                            </div>
+                            <input type="range" id="slider-warmth" min="-40" max="40" value="10" oninput="updateFilterValues()" class="w-full">
+                        </div>
+
+                        <!-- Ranglar to'yinganligi -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="font-medium text-stone-700">Jonlilik (Rang tiniqligi)</span>
+                                <span id="val-saturation" class="text-roseGold-600 font-semibold">106%</span>
+                            </div>
+                            <input type="range" id="slider-saturation" min="75" max="140" value="106" oninput="updateFilterValues()" class="w-full">
+                        </div>
+
+                        <!-- Kontrast -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="font-medium text-stone-700">Kontrast va aniqlik</span>
+                                <span id="val-contrast" class="text-roseGold-600 font-semibold">103%</span>
+                            </div>
+                            <input type="range" id="slider-contrast" min="85" max="130" value="103" oninput="updateFilterValues()" class="w-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PASTKI BO'LIM: Shaxsiy Stil va Go'zallik Tavsiyalari -->
+        <section class="mt-8 bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-roseGold-100">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-stone-100">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-roseGold-600">Shaxsiy Stilist Xulosasi</span>
+                    <h2 id="seasonTitle" class="font-serif text-2xl font-bold text-stone-900 mt-1">🌸 Bahor (Spring) Rang Turi Uchun Tavsiyalar</h2>
+                </div>
+                <p id="seasonSummary" class="text-sm text-stone-600 max-w-xl leading-relaxed">
+                    Sizning teringizda issiq, oltinsimon va quyoshli jilo mavjud. Yorqin, toza va iliq ranglar yuzingizni yanada yosh, tiniq va jozibador ko‘rsatadi.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                <!-- Kiyim va Ro'mol ranglari -->
+                <div class="p-5 rounded-2xl bg-roseGold-50/60 border border-roseGold-100">
+                    <div class="w-10 h-10 rounded-xl bg-roseGold-100 text-roseGold-700 flex items-center justify-center mb-3">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="font-semibold text-stone-900 mb-2">Kiyim va Ro‘mol Tanlovi</h4>
+                    <p id="adviceClothing" class="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                        Shaftoli, marjon (korall), qaymoqrang, iliq firuza, och yashil va oltinsimon sariq ranglar sizga juda yarashadi. Og‘ir qora va sovuq kulrang liboslardan yuzga yaqin joyda saqlaning.
+                    </p>
+                </div>
+
+                <!-- Taqinchoq va Aksessuarlar -->
+                <div class="p-5 rounded-2xl bg-amber-50/60 border border-amber-100">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-3">
+                        <i data-lucide="gem" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="font-semibold text-stone-900 mb-2">Taqinchoq va Metallar</h4>
+                    <p id="adviceJewelry" class="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                        Sariq oltin, pushti oltin (rose gold), bronza hamda marvarid va qahrabo toshli taqinchoqlar teringizning tabiiy nurini yanada ochib beradi.
+                    </p>
+                </div>
+
+                <!-- Soch va Ko'rinish sirlari -->
+                <div class="p-5 rounded-2xl bg-emerald-50/60 border border-emerald-100">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-3">
+                        <i data-lucide="sun" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="font-semibold text-stone-900 mb-2">Soch Rangi va Pardoz</h4>
+                    <p id="adviceBeauty" class="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                        Asal tusli kashtan, karamel, issiq shokolad yoki oltinsimon sarg‘ish soch ohanglari ideal. Yuz uchun shaftoli rang rumyana va iliq pushti lab bo‘yog‘i tavsiya etiladi.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Kamera Modali -->
+    <div id="cameraModal" class="fixed inset-0 z-50 hidden bg-stone-900/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold text-stone-900 flex items-center gap-2">
+                    <i data-lucide="camera" class="w-5 h-5 text-roseGold-600"></i>
+                    Kameradan rasmga olish
+                </h3>
+                <button onclick="closeCameraModal()" class="p-1.5 rounded-full hover:bg-stone-100 text-stone-500">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="relative aspect-[4/5] bg-stone-900 rounded-2xl overflow-hidden mb-4">
+                <video id="cameraVideo" autoplay playsinline class="w-full h-full object-cover transform -scale-x-100"></video>
+                <div class="absolute inset-0 border-2 border-dashed border-white/40 rounded-full m-10 pointer-events-none"></div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeCameraModal()" class="flex-1 py-2.5 rounded-xl border border-stone-200 text-stone-700 text-sm font-medium hover:bg-stone-50">
+                    Bekor qilish
+                </button>
+                <button onclick="captureCameraPhoto()" class="flex-1 py-2.5 rounded-xl bg-roseGold-600 hover:bg-roseGold-700 text-white text-sm font-semibold shadow-md">
+                    Rasmga olish
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lucide ikonkalarini ishga tushirish
+        lucide.createIcons();
+
+        // Mavsumiy ranglar ma'lumotlar bazasi (O'zbek tilida)
+        const SEASONS_DATA = {
+            spring: {
+                id: 'spring',
+                badge: 'Bahor (Issiq va Yorqin)',
+                title: '🌸 Bahor (Spring) Rang Turi Uchun Tavsiyalar',
+                summary: 'Sizning teringizda issiq, oltinsimon va quyoshli jilo mavjud. Yorqin, toza va iliq ranglar yuzingizni yanada yosh, tiniq va jozibador ko‘rsatadi.',
+                clothing: 'Shaftoli, marjon (korall), qaymoqrang, iliq firuza, och yashil va oltinsimon sariq ranglar sizga juda yarashadi. Og‘ir qora va sovuq kulrang liboslardan yuzga yaqin joyda saqlaning.',
+                jewelry: 'Sariq oltin, pushti oltin (rose gold), bronza hamda krem rangli marvarid va qahrabo taqinchoqlar teringizning tabiiy nurini ochadi.',
+                beauty: 'Asal tusli kashtan, karamel, issiq shokolad yoki oltinsimon soch ohanglari ideal. Yuz uchun shaftoli rang rumyana va iliq marjon lab bo‘yog‘i tavsiya etiladi.',
+                recommended: [
+                    { name: 'Shaftoli guli', hex: '#FF9E80' },
+                    { name: 'Yorqin marjon', hex: '#FF6F61' },
+                    { name: 'Iliq qaymoqrang', hex: '#FFF3E0' },
+                    { name: 'Quyoshli sariq', hex: '#FFD54F' },
+                    { name: 'Bahoriy yashil', hex: '#81C784' },
+                    { name: 'Iliq firuza', hex: '#4DD0E1' }
+                ],
+                avoid: [
+                    { name: 'Qora ko‘mir', hex: '#1A1A1A' },
+                    { name: 'Sovuq kulrang', hex: '#90A4AE' },
+                    { name: 'To‘q binafsha', hex: '#4A148C' },
+                    { name: 'Muzdek ko‘k', hex: '#B3E5FC' },
+                    { name: 'To‘q olxo‘ri', hex: '#5D1049' },
+                    { name: 'Kislotali pushti', hex: '#F50057' }
+                ]
+            },
+            summer: {
+                id: 'summer',
+                badge: 'Yoz (Sovuq va Mayin)',
+                title: '🌊 Yoz (Summer) Rang Turi Uchun Tavsiyalar',
+                summary: 'Teringizda nozik, salqin va pushtisimon-och ohang ustunlik qiladi. Yumshoq, pastel va tutunli sovuq ranglar sizga kibor va nafis ko‘rinish beradi.',
+                clothing: 'Lavanda, och moviy, pushti atirgul, yalpiz yashil, marvarid kulrang va yumshoq olxo‘ri ranglari yuzingizni tinchlantirib, chiroyli ochadi.',
+                jewelry: 'Kumush, oq oltin, platina va nafis oq marvarid taqinchoqlar teringiz bilan mukammal uyg‘unlashadi.',
+                beauty: 'Kulrang-sarg‘ish (ash blonde), sovuq och kashtan va tabiiy jigarrang sochlar yarashadi. Pushti-malina tusli pardoz yuzga tazelik bag‘ishlaydi.',
+                recommended: [
+                    { name: 'Mayin lavanda', hex: '#B39DDB' },
+                    { name: 'Atirgul pushti', hex: '#F48FB1' },
+                    { name: 'Osmon moviy', hex: '#81D4FA' },
+                    { name: 'Yalpiz yashil', hex: '#80CBC4' },
+                    { name: 'Marvarid kulrang', hex: '#CFD8DC' },
+                    { name: 'Yumshoq malina', hex: '#CE93D8' }
+                ],
+                avoid: [
+                    { name: 'Apelsin rang', hex: '#FF6D00' },
+                    { name: 'Xantal sariq', hex: '#FBC02D' },
+                    { name: 'Qattiq qora', hex: '#111111' },
+                    { name: 'G‘isht qizil', hex: '#BF360C' },
+                    { name: 'Zaytun yashil', hex: '#827717' },
+                    { name: 'Issiq jigarrang', hex: '#5D4037' }
+                ]
+            },
+            autumn: {
+                id: 'autumn',
+                badge: 'Kuz (Issiq va Chuqur)',
+                title: '🍂 Kuz (Autumn) Rang Turi Uchun Tavsiyalar',
+                summary: 'Sizda boy, issiq va tabiiy yer ohanglari mujassam. Chuqur, to‘yingan va iliq kuzgi ranglar ko‘rinishingizga hashamat va joziba bag‘ishlaydi.',
+                clothing: 'Terrakota, zaytun yashil, xantal sariq, issiq shokolad, zumrad va qaymoq-bej ranglari sizning tabiiy go‘zalligingizni yaqqol namoyon qiladi.',
+                jewelry: 'Antik oltin, mis, bronza, yog‘och va zumrad yoki qahrabo toshli bezaklar siz uchun yaratilgan.',
+                beauty: 'Mis-qizg‘ish, to‘q kashtan, oltin-jigarrang soch ranglari ajoyib ko‘rinadi. Terrakota va iliq g‘isht rangidagi lab bo‘yoqlari juda mos keladi.',
+                recommended: [
+                    { name: 'Terrakota', hex: '#D84315' },
+                    { name: 'Zaytun yashil', hex: '#689F38' },
+                    { name: 'Xantal oltin', hex: '#FFA000' },
+                    { name: 'Issiq shokolad', hex: '#6D4C41' },
+                    { name: 'Chuqur firuza', hex: '#00838F' },
+                    { name: 'Iliq bej', hex: '#D7CCC8' }
+                ],
+                avoid: [
+                    { name: 'Sovuq pushti', hex: '#F8BBD0' },
+                    { name: 'Muzdek moviy', hex: '#E1F5FE' },
+                    { name: 'Qora rang', hex: '#121212' },
+                    { name: 'Kumush kulrang', hex: '#B0BEC5' },
+                    { name: 'Neon yashil', hex: '#00E676' },
+                    { name: 'Sovuq binafsha', hex: '#7E57C2' }
+                ]
+            },
+            winter: {
+                id: 'winter',
+                badge: 'Qish (Sovuq va Tiniq)',
+                title: '❄️ Qish (Winter) Rang Turi Uchun Tavsiyalar',
+                summary: 'Teringiz tiniq va sovuq ohangga ega bo‘lib, soch va ko‘zlaringiz bilan yorqin kontrast hosil qiladi. Toza, chuqur va qirollik ranglari sizni maftunkor ko‘rsatadi.',
+                clothing: 'Qordek oppoq, klassik qora, qirollik ko‘ki (royal blue), zumrad yashil, yoqut qizil va fuksiya ranglari yuzingizni nihoyatda yorqin qiladi.',
+                jewelry: 'Kumush, oq oltin, olmos ko‘zli taqinchoqlar va sovuq jiloli marvaridlar sizga hashamat beradi.',
+                beauty: 'To‘q qora, sovuq to‘q kashtan yoki platina ohanglari mos. Klassik qizil yoki olcha rangidagi lab bo‘yog‘i obrazingizni mukammal qiladi.',
+                recommended: [
+                    { name: 'Qirollik ko‘ki', hex: '#1565C0' },
+                    { name: 'Yoqut qizil', hex: '#C62828' },
+                    { name: 'Zumrad yashil', hex: '#00695C' },
+                    { name: 'Qordek oppoq', hex: '#FFFFFF' },
+                    { name: 'Klassik qora', hex: '#1C1C1C' },
+                    { name: 'Yorqin fuksiya', hex: '#AD1457' }
+                ],
+                avoid: [
+                    { name: 'Xantal sariq', hex: '#F9A825' },
+                    { name: 'Iliq shaftoli', hex: '#FFAB91' },
+                    { name: 'Ochre jigarrang', hex: '#8D6E63' },
+                    { name: 'Xira bej', hex: '#EFEBE9' },
+                    { name: 'Apelsin', hex: '#EF6C00' },
+                    { name: 'Iliq zaytun', hex: '#9E9D24' }
+                ]
+            }
+        };
+
+        // Ilova holati (State)
+        const state = {
+            currentSeason: 'spring',
+            drapeColor: '#FF9E80',
+            drapeName: 'Shaftoli guli',
+            isDrapeRecommended: true,
+            isEyedropperActive: false,
+            isComparing: false,
+            sourceImage: null,
+            filters: {
+                brightness: 108,
+                glow: 25,
+                warmth: 10,
+                saturation: 106,
+                contrast: 103
+            }
+        };
+
+        const canvas = document.getElementById('studioCanvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        let cameraStream = null;
+
+        // Xabarnoma chiqarish funksiyasi
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3200);
+        }
+
+        // Badiiy portret namunalarini Canvas orqali chiroyli generatsiya qilish (tashqi URL bog'liqligisiz ishlashi uchun)
+        function createSyntheticPortrait(index) {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 600;
+            tempCanvas.height = 750;
+            const tCtx = tempCanvas.getContext('2d');
+
+            const profiles = [
+                { bg1: '#f7ebe4', bg2: '#ebd5c8', skin: '#f3c6a5', skinShadow: '#e0a67d', hair: '#7c4d2b', eyes: '#5c7a4e', lips: '#e57373', season: 'spring' },
+                { bg1: '#eef2f7', bg2: '#dce4ef', skin: '#f2ccd5', skinShadow: '#dca8b5', hair: '#8d7b68', eyes: '#5c85ad', lips: '#d87093', season: 'summer' },
+                { bg1: '#f2e6dc', bg2: '#dfd0c0', skin: '#d49a6a', skinShadow: '#b57848', hair: '#4a2511', eyes: '#6e472b', lips: '#c05640', season: 'autumn' },
+                { bg1: '#eceff4', bg2: '#d8dee9', skin: '#f6dadf', skinShadow: '#dfb5bd', hair: '#1e1e24', eyes: '#2e4057', lips: '#b81d43', season: 'winter' }
+            ];
+            const p = profiles[index % profiles.length];
+
+            // Fon gradienti
+            const bgGrad = tCtx.createLinearGradient(0, 0, 600, 750);
+            bgGrad.addColorStop(0, p.bg1);
+            bgGrad.addColorStop(1, p.bg2);
+            tCtx.fillStyle = bgGrad;
+            tCtx.fillRect(0, 0, 600, 750);
+
+            // Orqa sochlar
+            tCtx.fillStyle = p.hair;
+            tCtx.beginPath();
+            tCtx.ellipse(300, 310, 165, 220, 0, 0, Math.PI * 2);
+            tCtx.fill();
+
+            // Bo'yin va yelkalar
+            const neckGrad = tCtx.createLinearGradient(0, 380, 0, 620);
+            neckGrad.addColorStop(0, p.skinShadow);
+            neckGrad.addColorStop(0.4, p.skin);
+            neckGrad.addColorStop(1, p.skin);
+            tCtx.fillStyle = neckGrad;
+            tCtx.beginPath();
+            tCtx.moveTo(245, 390);
+            tCtx.lineTo(355, 390);
+            tCtx.lineTo(375, 520);
+            tCtx.quadraticCurveTo(490, 550, 520, 750);
+            tCtx.lineTo(80, 750);
+            tCtx.quadraticCurveTo(110, 550, 225, 520);
+            tCtx.closePath();
+            tCtx.fill();
+
+            // Yuz shakli
+            const faceGrad = tCtx.createRadialGradient(285, 270, 30, 300, 290, 150);
+            faceGrad.addColorStop(0, p.skin);
+            faceGrad.addColorStop(1, p.skinShadow);
+            tCtx.fillStyle = faceGrad;
+            tCtx.beginPath();
+            tCtx.ellipse(300, 285, 118, 152, 0, 0, Math.PI * 2);
+            tCtx.fill();
+
+            // Yonoq nuri (Blush)
+            tCtx.fillStyle = 'rgba(235, 110, 110, 0.16)';
+            tCtx.beginPath();
+            tCtx.ellipse(242, 315, 28, 18, -0.2, 0, Math.PI * 2);
+            tCtx.ellipse(358, 315, 28, 18, 0.2, 0, Math.PI * 2);
+            tCtx.fill();
+
+            // Qoshlar
+            tCtx.strokeStyle = p.hair;
+            tCtx.lineWidth = 5;
+            tCtx.lineCap = 'round';
+            tCtx.beginPath();
+            tCtx.moveTo(232, 242);
+            tCtx.quadraticCurveTo(258, 232, 280, 242);
+            tCtx.moveTo(320, 242);
+            tCtx.quadraticCurveTo(342, 232, 368, 242);
+            tCtx.stroke();
+
+            // Ko'zlar
+            [256, 344].forEach(ex => {
+                tCtx.fillStyle = '#ffffff';
+                tCtx.beginPath();
+                tCtx.ellipse(ex, 265, 20, 11, 0, 0, Math.PI * 2);
+                tCtx.fill();
+
+                tCtx.fillStyle = p.eyes;
+                tCtx.beginPath();
+                tCtx.arc(ex, 265, 9, 0, Math.PI * 2);
+                tCtx.fill();
+
+                tCtx.fillStyle = '#111111';
+                tCtx.beginPath();
+                tCtx.arc(ex, 265, 4.5, 0, Math.PI * 2);
+                tCtx.fill();
+
+                tCtx.fillStyle = '#ffffff';
+                tCtx.beginPath();
+                tCtx.arc(ex - 3, 262, 2.2, 0, Math.PI * 2);
+                tCtx.fill();
+            });
+
+            // Burun soyasi
+            tCtx.strokeStyle = 'rgba(130, 80, 60, 0.25)';
+            tCtx.lineWidth = 3;
+            tCtx.beginPath();
+            tCtx.moveTo(300, 272);
+            tCtx.lineTo(295, 318);
+            tCtx.quadraticCurveTo(300, 324, 308, 318);
+            tCtx.stroke();
+
+            // Lablar
+            tCtx.fillStyle = p.lips;
+            tCtx.beginPath();
+            tCtx.moveTo(272, 358);
+            tCtx.quadraticCurveTo(288, 348, 300, 353);
+            tCtx.quadraticCurveTo(312, 348, 328, 358);
+            tCtx.quadraticCurveTo(300, 378, 272, 358);
+            tCtx.fill();
+
+            // Old soch tolalari
+            tCtx.fillStyle = p.hair;
+            tCtx.beginPath();
+            tCtx.moveTo(180, 280);
+            tCtx.quadraticCurveTo(185, 130, 300, 128);
+            tCtx.quadraticCurveTo(415, 130, 420, 280);
+            tCtx.quadraticCurveTo(395, 185, 300, 175);
+            tCtx.quadraticCurveTo(205, 185, 180, 280);
+            tCtx.fill();
+
+            const img = new Image();
+            img.src = tempCanvas.toDataURL('image/png');
+            return { img, season: p.season };
+        }
+
+        // Namuna portretni yuklash
+        function loadSamplePortrait(index) {
+            const sample = createSyntheticPortrait(index);
+            sample.img.onload = () => {
+                state.sourceImage = sample.img;
+                setSeason(sample.season);
+                renderCanvas();
+                showToast(`${index + 1}-namuna yuklandi. Ranglarni sinab ko‘ring!`);
+            };
+        }
+
+        // Foydalanuvchi rasmini yuklash
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    state.sourceImage = img;
+                    renderCanvas();
+                    autoAnalyzeCenterSkin();
+                    showToast('Rasmingiz yuklandi! Yuz terisi rangi avtomatik tahlil qilindi.');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Kamera funksiyalari
+        async function openCameraModal() {
+            const modal = document.getElementById('cameraModal');
+            const video = document.getElementById('cameraVideo');
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                video.srcObject = cameraStream;
+                modal.classList.remove('hidden');
+            } catch (err) {
+                showToast('Kameraga ulanib bo‘lmadi. Iltimos, rasm yuklash tugmasidan foydalaning.');
+            }
+        }
+
+        function closeCameraModal() {
+            const modal = document.getElementById('cameraModal');
+            modal.classList.add('hidden');
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+        }
+
+        function captureCameraPhoto() {
+            const video = document.getElementById('cameraVideo');
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = video.videoWidth || 600;
+            tempCanvas.height = video.videoHeight || 750;
+            const tCtx = tempCanvas.getContext('2d');
+            // Ko'zgu effektini to'g'rilash
+            tCtx.translate(tempCanvas.width, 0);
+            tCtx.scale(-1, 1);
+            tCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+
+            const img = new Image();
+            img.onload = () => {
+                state.sourceImage = img;
+                closeCameraModal();
+                renderCanvas();
+                autoAnalyzeCenterSkin();
+                showToast('Kameradan rasm olindi! Endi sizga yarashadigan ranglarni ko‘ring.');
+            };
+            img.src = tempCanvas.toDataURL('image/png');
+        }
+
+        // Mavsumiy rang turini o'zgartirish va UI ni yangilash
+        function setSeason(seasonKey) {
+            state.currentSeason = seasonKey;
+            const data = SEASONS_DATA[seasonKey];
+
+            // Tugmalar stilini yangilash
+            document.querySelectorAll('.season-selector').forEach(btn => {
+                btn.classList.remove('border-2', 'border-roseGold-500', 'bg-roseGold-50');
+                btn.classList.add('border', 'border-stone-200');
+            });
+            const activeBtn = document.getElementById(`btn-season-${seasonKey}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border', 'border-stone-200');
+                activeBtn.classList.add('border-2', 'border-roseGold-500', 'bg-roseGold-50');
+            }
+
+            // Nishon va tavsiyalarni yangilash
+            document.getElementById('detectedSeasonBadge').textContent = data.badge;
+            document.getElementById('seasonTitle').textContent = data.title;
+            document.getElementById('seasonSummary').textContent = data.summary;
+            document.getElementById('adviceClothing').textContent = data.clothing;
+            document.getElementById('adviceJewelry').textContent = data.jewelry;
+            document.getElementById('adviceBeauty').textContent = data.beauty;
+
+            // Rang katakchalarini chizish
+            const recContainer = document.getElementById('recommendedSwatches');
+            recContainer.innerHTML = '';
+            data.recommended.forEach((swatch, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full aspect-square rounded-xl border-2 border-white shadow-sm hover:scale-110 transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-roseGold-500';
+                btn.style.backgroundColor = swatch.hex;
+                btn.title = swatch.name;
+                btn.onclick = () => selectDrapeColor(swatch.hex, swatch.name, true);
+                recContainer.appendChild(btn);
+
+                if (idx === 0) {
+                    selectDrapeColor(swatch.hex, swatch.name, true, false);
+                }
+            });
+
+            const avoidContainer = document.getElementById('avoidSwatches');
+            avoidContainer.innerHTML = '';
+            data.avoid.forEach(swatch => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full aspect-square rounded-xl border border-stone-300 shadow-sm hover:scale-110 transition cursor-pointer opacity-90';
+                btn.style.backgroundColor = swatch.hex;
+                btn.title = swatch.name + ' (Tavsiya etilmaydi)';
+                btn.onclick = () => selectDrapeColor(swatch.hex, swatch.name, false);
+                avoidContainer.appendChild(btn);
+            });
+
+            renderCanvas();
+        }
+
+        // Virtual mato rangini tanlash
+        function selectDrapeColor(hex, name, isRecommended, shouldRender = true) {
+            state.drapeColor = hex;
+            state.drapeName = name;
+            state.isDrapeRecommended = isRecommended;
+
+            document.getElementById('currentDrapeName').textContent = `${name} (${hex.toUpperCase()})`;
+            document.getElementById('customDrapeColor').value = hex;
+
+            const statusEl = document.getElementById('drapeStatusIndicator');
+            if (isRecommended) {
+                statusEl.className = 'flex items-center gap-1.5 text-emerald-700 font-medium';
+                statusEl.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4"></i> Bu rang yuzingizga nur va joziba bermoqda`;
+            } else {
+                statusEl.className = 'flex items-center gap-1.5 text-rose-600 font-medium';
+                statusEl.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i> Diqqat: bu rang yuzingizni biroz so‘lg‘in ko‘rsatishi mumkin`;
+            }
+            lucide.createIcons();
+
+            if (shouldRender) renderCanvas();
+        }
+
+        // Pipetka vositasini yoqish/o'chirish
+        function toggleEyedropper() {
+            state.isEyedropperActive = !state.isEyedropperActive;
+            const banner = document.getElementById('eyedropperBanner');
+            const btnText = document.getElementById('eyedropperText');
+
+            if (state.isEyedropperActive) {
+                canvas.classList.add('eyedropper-cursor');
+                banner.classList.remove('hidden');
+                btnText.textContent = 'Yuz terisiga bosing...';
+            } else {
+                canvas.classList.remove('eyedropper-cursor');
+                banner.classList.add('hidden');
+                btnText.textContent = 'Rasmdan teri rangini olish';
+            }
+        }
+
+        // Canvas bosilganda teri rangini o'qish
+        canvas.addEventListener('click', function(e) {
+            if (!state.isEyedropperActive) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = Math.floor((e.clientX - rect.left) * scaleX);
+            const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+            const pixel = ctx.getImageData(x, y, 1, 1).data;
+            analyzeRGBSkinTone(pixel[0], pixel[1], pixel[2]);
+            toggleEyedropper();
+        });
+
+        // Markaziy hududdan avtomatik tahlil
+        function autoAnalyzeCenterSkin() {
+            if (!state.sourceImage) return;
+            const cx = Math.floor(canvas.width * 0.5);
+            const cy = Math.floor(canvas.height * 0.38);
+            const pixel = ctx.getImageData(cx, cy, 1, 1).data;
+            analyzeRGBSkinTone(pixel[0], pixel[1], pixel[2]);
+        }
+
+        // RGB qiymatidan Issiq/Sovuq va Yorqin/Chuqur mavsumni aniqlash algoritmi
+        function analyzeRGBSkinTone(r, g, b) {
+            const hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+            document.getElementById('sampledSkinPreview').style.backgroundColor = hex;
+
+            // Issiqlik (qizil/sariq vs ko'k nisbati) va yorqinlik (luminance)
+            const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+            const warmthScore = (r - b) + (g - b) * 0.35;
+
+            let detectedSeason = 'spring';
+            if (warmthScore > 32) {
+                detectedSeason = luminance > 165 ? 'spring' : 'autumn';
+            } else {
+                detectedSeason = luminance > 175 ? 'summer' : 'winter';
+            }
+
+            setSeason(detectedSeason);
+            showToast(`Teri ohangi aniqlandi! Sizga eng mos mavsum: ${SEASONS_DATA[detectedSeason].badge}`);
+        }
+
+        // Slayder qiymatlarini yangilash
+        function updateFilterValues() {
+            state.filters.brightness = parseInt(document.getElementById('slider-brightness').value);
+            state.filters.glow = parseInt(document.getElementById('slider-glow').value);
+            state.filters.warmth = parseInt(document.getElementById('slider-warmth').value);
+            state.filters.saturation = parseInt(document.getElementById('slider-saturation').value);
+            state.filters.contrast = parseInt(document.getElementById('slider-contrast').value);
+
+            document.getElementById('val-brightness').textContent = `${state.filters.brightness - 100 >= 0 ? '+' : ''}${state.filters.brightness - 100}%`;
+            document.getElementById('val-glow').textContent = `${state.filters.glow}%`;
+            document.getElementById('val-warmth').textContent = `${state.filters.warmth >= 0 ? '+' : ''}${state.filters.warmth}`;
+            document.getElementById('val-saturation').textContent = `${state.filters.saturation}%`;
+            document.getElementById('val-contrast').textContent = `${state.filters.contrast}%`;
+
+            renderCanvas();
+        }
+
+        // Tayyor go'zallik effektlari (Presets)
+        function applyBeautyPreset(preset) {
+            const presets = {
+                natural: { brightness: 108, glow: 25, warmth: 8, saturation: 105, contrast: 103 },
+                golden:  { brightness: 112, glow: 35, warmth: 24, saturation: 112, contrast: 105 },
+                fresh:   { brightness: 114, glow: 20, warmth: -10, saturation: 108, contrast: 106 },
+                glamour: { brightness: 110, glow: 45, warmth: 12, saturation: 116, contrast: 110 }
+            };
+            const p = presets[preset];
+            if (!p) return;
+
+            document.getElementById('slider-brightness').value = p.brightness;
+            document.getElementById('slider-glow').value = p.glow;
+            document.getElementById('slider-warmth').value = p.warmth;
+            document.getElementById('slider-saturation').value = p.saturation;
+            document.getElementById('slider-contrast').value = p.contrast;
+
+            updateFilterValues();
+            showToast('Go‘zallik effekti qo‘llanildi!');
+        }
+
+        // Sozlamalarni asliga qaytarish
+        function resetFilters() {
+            document.getElementById('slider-brightness').value = 100;
+            document.getElementById('slider-glow').value = 0;
+            document.getElementById('slider-warmth').value = 0;
+            document.getElementById('slider-saturation').value = 100;
+            document.getElementById('slider-contrast').value = 100;
+            updateFilterValues();
+            showToast('Barcha effektlar asl holatiga qaytarildi.');
+        }
+
+        // Oldin / Keyin solishtirish
+        function startCompare() {
+            state.isComparing = true;
+            document.getElementById('beforeBadge').classList.remove('hidden');
+            document.getElementById('afterBadge').classList.add('hidden');
+            renderCanvas();
+        }
+
+        function endCompare() {
+            if (!state.isComparing) return;
+            state.isComparing = false;
+            document.getElementById('beforeBadge').classList.add('hidden');
+            document.getElementById('afterBadge').classList.remove('hidden');
+            renderCanvas();
+        }
+
+        // Asosiy Canvas chizish funksiyasi
+        function renderCanvas() {
+            if (!state.sourceImage) return;
+
+            const w = 600;
+            const h = 750;
+            canvas.width = w;
+            canvas.height = h;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Rasmni markazlashtirib to'ldirish (cover)
+            const img = state.sourceImage;
+            const imgRatio = img.width / img.height;
+            const canvasRatio = w / h;
+            let drawW, drawH, offsetX, offsetY;
+
+            if (imgRatio > canvasRatio) {
+                drawH = h;
+                drawW = img.width * (h / img.height);
+                offsetX = (w - drawW) / 2;
+                offsetY = 0;
+            } else {
+                drawW = w;
+                drawH = img.height * (w / img.width);
+                offsetX = 0;
+                offsetY = (h - drawH) / 2;
+            }
+
+            if (state.isComparing) {
+                // OLDIN holati: hech qanday filtr va matosiz asl rasm
+                ctx.filter = 'none';
+                ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+                return;
+            }
+
+            // 1. Asosiy yorqinlik, kontrast va to'yinganlik filtrlari
+            const { brightness, glow, warmth, saturation, contrast } = state.filters;
+            ctx.save();
+            ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
+            ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+            ctx.restore();
+
+            // 2. Teri mayinligi va tabiiy nur (Soft Glow - Screen blend mode)
+            if (glow > 0) {
+                ctx.save();
+                ctx.globalAlpha = (glow / 100) * 0.48;
+                ctx.globalCompositeOperation = 'screen';
+                ctx.filter = `blur(${Math.max(4, glow * 0.22)}px) brightness(110%)`;
+                ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+                ctx.restore();
+            }
+
+            // 3. Harorat (Issiq oltin yoki salqin tiniq ohang balansi)
+            if (warmth !== 0) {
+                ctx.save();
+                ctx.globalCompositeOperation = 'soft-light';
+                if (warmth > 0) {
+                    ctx.fillStyle = `rgba(255, 185, 110, ${(warmth / 40) * 0.35})`;
+                } else {
+                    ctx.fillStyle = `rgba(130, 195, 255, ${(Math.abs(warmth) / 40) * 0.35})`;
+                }
+                ctx.fillRect(0, 0, w, h);
+                ctx.restore();
+            }
+
+            // 4. Virtual Mato (Draping) yoqa/kiyim qatlami
+            const showDrape = document.getElementById('drapeToggle').checked;
+            if (showDrape && state.drapeColor) {
+                ctx.save();
+                
+                // Mato burmalari va tabiiy soyali gradienti
+                const drapeGrad = ctx.createLinearGradient(0, h * 0.68, w, h);
+                drapeGrad.addColorStop(0, state.drapeColor);
+                drapeGrad.addColorStop(0.5, state.drapeColor);
+                drapeGrad.addColorStop(1, shadeColor(state.drapeColor, -22));
+
+                ctx.fillStyle = drapeGrad;
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+                ctx.shadowBlur = 22;
+                ctx.shadowOffsetY = -6;
+
+                // Yelka va bo'yin atrofidagi nafis mato shakli (V-yoqa / sharf uslubi)
+                ctx.beginPath();
+                ctx.moveTo(-20, h + 10);
+                ctx.lineTo(-20, h * 0.74);
+                ctx.quadraticCurveTo(w * 0.22, h * 0.67, w * 0.36, h * 0.73);
+                ctx.quadraticCurveTo(w * 0.50, h * 0.85, w * 0.64, h * 0.73);
+                ctx.quadraticCurveTo(w * 0.78, h * 0.67, w + 20, h * 0.74);
+                ctx.lineTo(w + 20, h + 10);
+                ctx.closePath();
+                ctx.fill();
+
+                // Mato ustidagi yumshoq yorug'lik refleksi (yuzga tushuvchi nur effekti)
+                const bounceGrad = ctx.createRadialGradient(w * 0.5, h * 0.68, 10, w * 0.5, h * 0.52, w * 0.45);
+                bounceGrad.addColorStop(0, hexToRgba(state.drapeColor, 0.22));
+                bounceGrad.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.globalCompositeOperation = 'soft-light';
+                ctx.fillStyle = bounceGrad;
+                ctx.fillRect(0, h * 0.2, w, h * 0.6);
+
+                ctx.restore();
+            }
+        }
+
+        // Rangni to'qroq yoki ochroq qilish yordamchi funksiyasi
+        function shadeColor(color, percent) {
+            let R = parseInt(color.substring(1, 3), 16);
+            let G = parseInt(color.substring(3, 5), 16);
+            let B = parseInt(color.substring(5, 7), 16);
+
+            R = parseInt(R * (100 + percent) / 100);
+            G = parseInt(G * (100 + percent) / 100);
+            B = parseInt(B * (100 + percent) / 100);
+
+            R = (R < 255) ? Math.max(0, R) : 255;
+            G = (G < 255) ? Math.max(0, G) : 255;
+            B = (B < 255) ? Math.max(0, B) : 255;
+
+            const RR = ((R.toString(16).length === 1) ? "0" + R.toString(16) : R.toString(16));
+            const GG = ((G.toString(16).length === 1) ? "0" + G.toString(16) : G.toString(16));
+            const BB = ((B.toString(16).length === 1) ? "0" + B.toString(16) : B.toString(16));
+
+            return "#" + RR + GG + BB;
+        }
+
+        function hexToRgba(hex, alpha) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        // Tayyor rasmni yuklab olish
+        function downloadEnhancedImage() {
+            const link = document.createElement('a');
+            link.download = `rang-va-gozallik-${state.currentSeason}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showToast('Yaxshilangan rasm qurilmangizga saqlandi!');
+        }
+
+        // Sahifa yuklanganda birinchi namunani ishga tushirish
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSamplePortrait(0);
+        });
+    </script>
+</body>
+</html>
